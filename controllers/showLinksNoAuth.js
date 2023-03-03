@@ -14,7 +14,7 @@ const getAllLinks = async (req, res) => {
     console.log(user)
     const links = await Link.find({ createdBy: user._id }).sort('createdAt')
     console.log(links, user._id)
-    res.status(StatusCodes.OK).json({ links, count: links.length })
+    res.status(StatusCodes.OK).json({ links, count: links.length, name: user.name })
 }
 // const getLink = async (req, res) => {
 //     const {
