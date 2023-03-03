@@ -15,6 +15,8 @@ const authenticateUser = require('./middleware/authentication');
 // routers
 const authRouter = require('./routes/auth');
 const linksRouter = require('./routes/links');
+const showLinksRouter = require('./routes/showLinksNoAuth');
+
 // error handler
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
@@ -32,9 +34,11 @@ app.use(cors());
 app.use(xss());
 
 // routes
+app.use('/k', showLinksRouter)
 app.use(express.static('public'))
 app.use('/api/v1/auth', authRouter);
 app.use('/api/v1/links', authenticateUser, linksRouter);
+
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
