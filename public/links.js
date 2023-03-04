@@ -80,6 +80,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const editCancel = document.getElementById("edit-cancel");
 
     const titleH1 = document.getElementById("titleH1")
+    const searchInput = document.getElementById("searchInput")
+    const searchBtn = document.getElementById("searchBtn")
+
+
     // section 2 
     let showing = logonRegister;
     let token = null;
@@ -122,8 +126,40 @@ document.addEventListener("DOMContentLoaded", () => {
         if (suspendInput) {
             return; // we don't want to act on buttons while doing async operations
         }
-        if (e.target.nodeName === "BUTTON") {
-            message.textContent = "";
+        // if (e.target.nodeName === "BUTTON") {
+        //     message.textContent = "";
+        // }
+        if (e.target === searchBtn) {
+            // message.textContent = "";
+            suspendInput = true;
+            try {
+                const response = await fetch(`/k/${searchInput.value}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+
+                });
+                const data = await response.json();
+                if (response.status === 200) {
+                    // message.textContent = `Logon successful.  Welcome ${data.user.name}`;
+                    // titleH1.innerHTML = `${data.user.name.charAt(0).toUpperCase() + data.user.name.slice(1)} Links`
+                    // token = data.token;
+                    // localStorage.setItem("token", token);
+                    // console.log(localStorage)
+                    console.log(data);
+                    showing.style.display = "none";
+                    thisEvent = new Event("startDisplay");
+                    document.dispatchEvent(thisEvent);
+                } else {
+                    // message.textContent = data.msg;
+                    alert('Response is not 200')
+                }
+            } catch (err) {
+                message.textContent = "A communications error occurred.";
+            }
+            suspendInput = false;
+
         }
         if (e.target === logoff) {
             localStorage.removeItem("token");

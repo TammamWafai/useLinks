@@ -10,14 +10,21 @@ function parseJwt(token) {
 }
 
 async function buildLinksTable(linksTable, linksTableHeader, message) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const myParam = urlParams.get('user');
+    // alert(myParam)
     try {
-        const response = await fetch("/k/tammamWafai", {
+        // alert(window.location.href)
+        const response = await fetch(`/k/${myParam}`, {
             method: "GET"
 
         });
         const data = await response.json();
+
+        titleH1.innerHTML = `${data.name.charAt(0).toUpperCase() + data.name.slice(1)} Links`
         var children = [linksTableHeader];
         if (response.status === 200) {
+
             if (data.count === 0) {
                 linksTable.replaceChildren(...children); // clear this for safety
                 return 0;
