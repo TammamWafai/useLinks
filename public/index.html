@@ -72,6 +72,9 @@
             <tr id="links-table-header">
                 <th>Platform</th>
                 <th>URL</th>
+                <th> </th>
+                <th> </th>
+                <th>Show</th>
                 <th colspan="2"></th>
             </tr>
         </table>
@@ -93,8 +96,17 @@
             </div>
             <div>
                 <label for="url">url:</label>
-                <input type="text" id="url">
+                <input type="text" id="url" placeholder="without https://">
             </div>
+            <div>
+                <label for="show">Show: </label>
+                <label class="switch">
+                    <input id="show" type="checkbox">
+                    <span class="slider round"></span>
+                </label>
+
+            </div>
+
             <!-- <div>
                 <label for="status">status:</label>
                 <select id="status">

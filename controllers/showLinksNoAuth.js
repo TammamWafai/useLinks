@@ -12,7 +12,7 @@ const getAllLinks = async (req, res) => {
         throw new NotFoundError('Username not found')
     }
     console.log(user)
-    const links = await Link.find({ createdBy: user._id }).sort('createdAt')
+    const links = await Link.find({ createdBy: user._id, show: true }).sort('createdAt')
     console.log(links, user._id)
     res.status(StatusCodes.OK).json({ links, count: links.length, name: user.name })
 }

@@ -20,11 +20,11 @@ async function buildLinksTable(linksTable, linksTableHeader, message) {
 
         });
         const data = await response.json();
+        console.log(data.msg)
 
-        titleH1.innerHTML = `${data.name.charAt(0).toUpperCase() + data.name.slice(1)} Links`
         var children = [linksTableHeader];
         if (response.status === 200) {
-
+            titleH1.innerHTML = `${data.name.charAt(0).toUpperCase() + data.name.slice(1)} Links`
             if (data.count === 0) {
                 linksTable.replaceChildren(...children); // clear this for safety
                 return 0;
@@ -41,10 +41,13 @@ async function buildLinksTable(linksTable, linksTableHeader, message) {
             }
             return data.count;
         } else {
+
             message.textContent = data.msg;
+
             return 0;
         }
     } catch (err) {
+        console.log(err)
         message.textContent = "A communication error occurred.";
         return 0;
     }
@@ -102,7 +105,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 linksMessage.textContent = "";
                 linksTable.style.display = "block";
             } else {
-                linksMessage.textContent = "There are no links to display for this user.";
+                if (data.msg == "Username not found") {
+                    linksMessage.textContent = ""
+                } else {
+                    linksMessage.textContent = "There are no links to display for this user.";
+                }
                 linksTable.style.display = "none";
             }
             links.style.display = "block";

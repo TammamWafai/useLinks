@@ -28,8 +28,8 @@ async function buildLinksTable(linksTable, linksTableHeader, token, message) {
                 for (let i = 0; i < data.links.length; i++) {
                     let editButton = `<td><button type="button" class="editButton" data-id=${data.links[i]._id}>edit</button></td>`;
                     let deleteButton = `<td><button type="button" class="deleteButton" data-id=${data.links[i]._id}>delete</button></td>`;
-                    let rowHTML = `<td>${data.links[i].platform}</td><td>${data.links[i].url}</td> ${editButton}${deleteButton}`;
-                    // <td>${data.links[i].status}</td>
+                    let showToggle = `<td>${data.links[i].show}</td>`
+                    let rowHTML = `<td>${data.links[i].platform}</td><td>${data.links[i].url}</td> ${editButton}${deleteButton}${showToggle}`;
                     let rowEntry = document.createElement("tr");
                     rowEntry.innerHTML = rowHTML;
                     children.push(rowEntry);
@@ -42,6 +42,8 @@ async function buildLinksTable(linksTable, linksTableHeader, token, message) {
             return 0;
         }
     } catch (err) {
+
+        console.log(err);
         message.textContent = "A communication error occurred.";
         return 0;
     }
@@ -72,9 +74,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const linksTableHeader = document.getElementById("links-table-header");
     const addLink = document.getElementById("add-link");
     const editLink = document.getElementById("edit-link");
+
     const platform = document.getElementById("platform");
     const url = document.getElementById("url");
-    // const status = document.getElementById("status");
+    const show = document.getElementById("show");
+
     const addingLink = document.getElementById("adding-link");
     const linksMessage = document.getElementById("links-message");
     const editCancel = document.getElementById("edit-cancel");
@@ -129,38 +133,39 @@ document.addEventListener("DOMContentLoaded", () => {
         // if (e.target.nodeName === "BUTTON") {
         //     message.textContent = "";
         // }
-        if (e.target === searchBtn) {
-            // message.textContent = "";
-            suspendInput = true;
-            try {
-                const response = await fetch(`/k/${searchInput.value}`, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    }
+        // if (e.target === searchBtn) {
+        //     // message.textContent = "";
+        //     suspendInput = true;
+        //     try {
+        //         const response = await fetch(`/k/${searchInput.value}`, {
+        //             method: "GET",
+        //             headers: {
+        //                 "Content-Type": "application/json",
+        //             }
 
-                });
-                const data = await response.json();
-                if (response.status === 200) {
-                    // message.textContent = `Logon successful.  Welcome ${data.user.name}`;
-                    // titleH1.innerHTML = `${data.user.name.charAt(0).toUpperCase() + data.user.name.slice(1)} Links`
-                    // token = data.token;
-                    // localStorage.setItem("token", token);
-                    // console.log(localStorage)
-                    console.log(data);
-                    showing.style.display = "none";
-                    thisEvent = new Event("startDisplay");
-                    document.dispatchEvent(thisEvent);
-                } else {
-                    // message.textContent = data.msg;
-                    alert('Response is not 200')
-                }
-            } catch (err) {
-                message.textContent = "A communications error occurred.";
-            }
-            suspendInput = false;
+        //         });
+        //         const data = await response.json();
+        //         if (response.status === 200) {
+        //             // message.textContent = `Logon successful.  Welcome ${data.user.name}`;
+        //             // titleH1.innerHTML = `${data.user.name.charAt(0).toUpperCase() + data.user.name.slice(1)} Links`
+        //             // token = data.token;
+        //             // localStorage.setItem("token", token);
+        //             // console.log(localStorage)
+        //             console.log(data);
+        //             showing.style.display = "none";
+        //             thisEvent = new Event("startDisplay");
+        //             document.dispatchEvent(thisEvent);
+        //         } else {
+        //             message.textContent = data.msg;
+        //             // alert('Response is not 200')
+        //         }
+        //     } catch (err) {
+        //         console.log(err);
+        //         message.textContent = "Error!";
+        //     }
+        //     suspendInput = false;
 
-        }
+        // }
         if (e.target === logoff) {
             localStorage.removeItem("token");
             titleH1.innerHTML = "Logged off"
@@ -218,6 +223,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     message.textContent = data.msg;
                 }
             } catch (err) {
+                console.log(err);
                 message.textContent = "A communications error occurred.";
             }
             suspendInput = false;
@@ -256,6 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         message.textContent = data.msg;
                     }
                 } catch (err) {
+                    console.log(err);
                     message.textContent = "A communications error occurred.";
                 }
                 suspendInput = false;
@@ -268,13 +275,14 @@ document.addEventListener("DOMContentLoaded", () => {
             delete editLink.dataset.id;
             platform.value = "";
             url.value = "";
-            status.value = "pending";
+            show.checked = false;
+
             addingLink.textContent = "add";
         } else if (e.target === editCancel) {
             showing.style.display = "none";
             platform.value = "";
             url.value = "";
-            status.value = "pending";
+            show.checked = false;
             thisEvent = new Event("startDisplay");
             document.dispatchEvent(thisEvent);
         } else if (e.target === addingLink) {
@@ -292,7 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         body: JSON.stringify({
                             platform: platform.value,
                             url: url.value,
-                            // status: status.value,
+                            show: show.checked
                         }),
                     });
                     const data = await response.json();
@@ -304,12 +312,13 @@ document.addEventListener("DOMContentLoaded", () => {
                         document.dispatchEvent(thisEvent);
                         platform.value = "";
                         url.value = "";
-                        // status.value = "pending";
+                        show.checked = false;
                     } else {
                         // failure
                         message.textContent = data.msg;
                     }
                 } catch (err) {
+                    console.log(err);
                     message.textContent = "A communication error occurred.";
                 }
                 suspendInput = false;
@@ -327,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         body: JSON.stringify({
                             platform: platform.value,
                             url: url.value,
-                            // status: status.value,
+                            show: show.checked,
                         }),
                     });
                     const data = await response.json();
@@ -336,13 +345,14 @@ document.addEventListener("DOMContentLoaded", () => {
                         showing.style.display = "none";
                         platform.value = "";
                         url.value = "";
-                        // status.value = "pending";
+                        show.checked = false;
                         thisEvent = new Event("startDisplay");
                         document.dispatchEvent(thisEvent);
                     } else {
                         message.textContent = data.msg;
                     }
                 } catch (err) {
+                    console.log(err);
 
                     message.textContent = "A communication error occurred.";
                 }
@@ -364,7 +374,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (response.status === 200) {
                     platform.value = data.link.platform;
                     url.value = data.link.url;
-                    // status.value = data.link.status;
+                    show.checked = data.link.show;
                     showing.style.display = "none";
                     showing = editLink;
                     showing.style.display = "block";
@@ -377,6 +387,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.dispatchEvent(thisEvent);
                 }
             } catch (err) {
+                console.log(err);
                 message.textContent = "A communications error has occurred.";
             }
             suspendInput = false;
@@ -405,9 +416,85 @@ document.addEventListener("DOMContentLoaded", () => {
                     document.dispatchEvent(thisEvent);
                 }
             } catch (err) {
+                console.log(err);
                 message.textContent = "A communications error has occurred.";
             }
             suspendInput = false;
+        }
+        else if (e.target === show) {
+            alert('Show switched')
+
+            // if (!editLink.dataset.id) {
+            //     // this is an attempted add
+            //     suspendInput = true;
+            //     try {
+            //         const response = await fetch("/api/v1/links", {
+            //             method: "POST",
+            //             headers: {
+            //                 "Content-Type": "application/json",
+            //                 Authorization: `Bearer ${token}`,
+            //             },
+            //             body: JSON.stringify({
+            //                 platform: platform.value,
+            //                 url: url.value,
+            //                 show: show.checked
+            //             }),
+            //         });
+            //         const data = await response.json();
+            //         if (response.status === 201) {
+            //             //successful create
+            //             message.textContent = "The link entry was created.";
+            //             showing.style.display = "none";
+            //             thisEvent = new Event("startDisplay");
+            //             document.dispatchEvent(thisEvent);
+            //             platform.value = "";
+            //             url.value = "";
+            //             show.checked = false;
+            //         } else {
+            //             // failure
+            //             message.textContent = data.msg;
+            //         }
+            //     } catch (err) {
+            //         console.log(err);
+            //         message.textContent = "A communication error occurred.";
+            //     }
+            //     suspendInput = false;
+            // } else {
+            //     // this is an update
+            //     suspendInput = true;
+            //     try {
+            //         const linkID = editLink.dataset.id;
+            //         const response = await fetch(`/api/v1/links/${linkID}`, {
+            //             method: "PATCH",
+            //             headers: {
+            //                 "Content-Type": "application/json",
+            //                 Authorization: `Bearer ${token}`,
+            //             },
+            //             body: JSON.stringify({
+            //                 platform: platform.value,
+            //                 url: url.value,
+            //                 show: show.checked,
+            //             }),
+            //         });
+            //         const data = await response.json();
+            //         if (response.status === 200) {
+            //             message.textContent = "The entry was updated.";
+            //             showing.style.display = "none";
+            //             platform.value = "";
+            //             url.value = "";
+            //             show.checked = false;
+            //             thisEvent = new Event("startDisplay");
+            //             document.dispatchEvent(thisEvent);
+            //         } else {
+            //             message.textContent = data.msg;
+            //         }
+            //     } catch (err) {
+            //         console.log(err);
+
+            //         message.textContent = "A communication error occurred.";
+            //     }
+            // }
+            // suspendInput = false;
         }
     })
 });
